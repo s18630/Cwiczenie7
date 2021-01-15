@@ -19,7 +19,7 @@ namespace Cwiczenie5.Controllers
     
     [Route("api/students")]
     [ApiController]
-    [Authorize]
+    
 
     public class StudentsController : ControllerBase
     {
@@ -35,6 +35,8 @@ namespace Cwiczenie5.Controllers
 
         [HttpGet]
         //  [Authorize(Roles ="admin")]
+        //   [AllowAnonymous]
+        [Authorize]
         public IActionResult GetStudents()
         {
 
