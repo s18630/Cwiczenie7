@@ -1,4 +1,5 @@
-﻿using Cwiczenie5.DTOs.Requests;
+﻿using Cwiczenie5.DTOs;
+using Cwiczenie5.DTOs.Requests;
 using Cwiczenie5.DTOs.Responses;
 using Cwiczenie5.Models;
 using System;
@@ -13,9 +14,67 @@ namespace Cwiczenie5.Services
     public class SqlServerStudentDbService : IStudentsDbService
     {
 
-        private const string ConString = "Data Source=db-mssql;Initial Catalog=2019SBD;Integrated Security=True"; 
+        private const string ConString = "Data Source=db-mssql;Initial Catalog=2019SBD;Integrated Security=True";
+
+        public bool isLogOk(LoginRequestDto request)
+        {
+           
+            if(request.Haslo == null || request.NumerIndexu == null)
+            {
+                return false;
+            }
+            try
+            {
+                using (SqlConnection con = new SqlConnection(ConString))
+                using (SqlCommand com = new SqlCommand())
+                {
+                    com.Connection = con;
+
+                    com.CommandText = " SELECT IndexNumber, Password  from Student where IndexNumber =@index ";
+                    com.Parameters.AddWithValue("index", request.NumerIndexu);
+
+                    con.Open();
+                    SqlDataReader dr = com.ExecuteReader();
+
+                    if (!dr.Read())
+                    {
+                        return false ;
+                    }
+
+                    string Index = dr["IndexNumber"].ToString();
+                    string Haslo = dr["Password"].ToString();
+
+                    dr.Close();
+
+                    if (Haslo == null || Index == null)
+                    {
+                        return false;
+                    }
 
 
+                    if (Haslo != request.Haslo || Index != request.NumerIndexu)
+                    {
+                        return false;
+                    }
+
+                    else
+                        return true;
+
+
+                }
+
+
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+
+
+
+
+
+        }
 
         public EnrollStudentResponse EnrollStudent(EnrollStudentRequest request)
         {
@@ -320,7 +379,7 @@ namespace Cwiczenie5.Services
 
         }
 
-
+        
     }
 }
 

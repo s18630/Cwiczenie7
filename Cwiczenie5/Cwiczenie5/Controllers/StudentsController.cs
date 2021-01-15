@@ -63,6 +63,18 @@ namespace Cwiczenie5.Controllers
 
         public IActionResult Login(LoginRequestDto request)
         {
+            try
+            {
+                bool log = _service.isLogOk(request);
+                if(log== false)
+                {
+                    return BadRequest();
+                }
+            }
+            catch(Exception)
+            {
+                return BadRequest();
+            }
             var claims = new[] {
             new Claim(ClaimTypes.NameIdentifier, "1"),
             new Claim(ClaimTypes.Name, "jan123"),

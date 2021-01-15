@@ -1,4 +1,5 @@
-﻿using Cwiczenie5.DTOs.Requests;
+﻿using Cwiczenie5.DTOs;
+using Cwiczenie5.DTOs.Requests;
 using Cwiczenie5.DTOs.Responses;
 using Cwiczenie5.Models;
 using System;
@@ -15,6 +16,8 @@ namespace Cwiczenie5.Services
         PromoteStudentsResponse PromoteStudents(PromoteStudentsRequest request);
         IEnumerable<Student> GetStudents();
         Student GetStudent(string index);
+
+        bool isLogOk(LoginRequestDto request);
 
 
     }
