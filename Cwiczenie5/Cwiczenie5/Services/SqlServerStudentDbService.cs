@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Cwiczenie5.Services
@@ -21,8 +22,13 @@ namespace Cwiczenie5.Services
            
             if(request.Haslo == null || request.NumerIndexu == null)
             {
+                
+               
                 return false;
+                
             }
+
+
             try
             {
                 using (SqlConnection con = new SqlConnection(ConString))
@@ -30,7 +36,7 @@ namespace Cwiczenie5.Services
                 {
                     com.Connection = con;
 
-                    com.CommandText = " SELECT IndexNumber, Password  from Student where IndexNumber =@index ";
+                    com.CommandText = " SELECT IndexNumber from Student where IndexNumber =@index ";
                     com.Parameters.AddWithValue("index", request.NumerIndexu);
 
                     con.Open();
@@ -38,30 +44,41 @@ namespace Cwiczenie5.Services
 
                     if (!dr.Read())
                     {
-                        return false ;
+                        return false;
                     }
-
-                    string Index = dr["IndexNumber"].ToString();
-                    string Haslo = dr["Password"].ToString();
 
                     dr.Close();
 
-                    if (Haslo == null || Index == null)
+                }
+
+
+                    using (SqlConnection con = new SqlConnection(ConString))
+                    using (SqlCommand com = new SqlCommand())
                     {
-                        return false;
+                        com.Connection = con;
+                     con.Open();
+
+             //       com.CommandText = "SELECT * FROM Logins WHERE Password = HASHBYTES('SHA2_512', '" + request.Haslo + " ') ";
+                       com.CommandText = "SELECT * FROM Logins WHERE Password = HASHBYTES('SHA2_512',@haslo) and IndexNumber=@index";
+
+                   com.Parameters.AddWithValue("haslo", request.Haslo);
+                   com.Parameters.AddWithValue("index", request.NumerIndexu);
+                   
+
+
+                    SqlDataReader dr = com.ExecuteReader();
+
+                        if (!dr.Read())
+                        {
+                     throw new Exception("problrm w e");
                     }
 
 
-                    if (Haslo != request.Haslo || Index != request.NumerIndexu)
-                    {
-                        return false;
-                    }
 
-                    else
-                        return true;
-
+                    dr.Close();
 
                 }
+                return true;
 
 
             }

@@ -73,7 +73,7 @@ namespace Cwiczenie5.Controllers
             }
             catch(Exception)
             {
-                return BadRequest();
+                return Ok("wyszuciło blad");
             }
             var claims = new[] {
             new Claim(ClaimTypes.NameIdentifier, "1"),
