@@ -49,39 +49,47 @@ namespace Cwiczenie5.Services
 
                     dr.Close();
 
+
                 }
 
 
-                    using (SqlConnection con = new SqlConnection(ConString))
-                    using (SqlCommand com = new SqlCommand())
-                    {
-                        com.Connection = con;
-                  
 
-            
-                       com.CommandText = "SELECT Password FROM Logins WHERE Password = HASHBYTES('SHA2_512',@haslo) and IndexNumber=@index";
-                    con.Open();
 
+
+
+
+
+
+                using (SqlConnection con = new SqlConnection(ConString))
+                using (SqlCommand com = new SqlCommand())
+                {
+                    com.Connection = con;
+
+                    com.CommandText = " SELECT count(*)  FROM Logins WHERE Password = HASHBYTES('SHA2_512', @haslo) and IndexNumber =@index";
+                    com.Parameters.AddWithValue("index", request.NumerIndexu);
                     com.Parameters.AddWithValue("haslo", request.Haslo);
-                   com.Parameters.AddWithValue("index", request.NumerIndexu);
-                   
+
+                    con.Open();
+                    var ex = com.ExecuteScalar();
 
 
-                    SqlDataReader dr = com.ExecuteReader();
+                    string str_myobject = ex.ToString();
+                    int int_myobject = int.Parse(str_myobject);
 
-                        if (!dr.Read())
-                        {
-                        return false;
+                    if (int_myobject != 0)
+                    {
+                        return true;
                     }
 
 
 
-                    dr.Close();
+
+
+
+                    return false; //
+
 
                 }
-                return true;
-
-
             }
             catch (Exception)
             {
