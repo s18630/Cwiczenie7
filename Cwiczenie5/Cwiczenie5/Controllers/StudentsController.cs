@@ -68,13 +68,14 @@ namespace Cwiczenie5.Controllers
                 bool log = _service.isLogOk(request);
                 if(log== false)
                 {
-                    return BadRequest();
+                    return BadRequest(); //brak uprawnień 
                 }
             }
             catch(Exception)
             {
                 return BadRequest();
             }
+            ///utwórz zgodne z urzytkownikiem infromacje
             var claims = new[] {
             new Claim(ClaimTypes.NameIdentifier, "1"),
             new Claim(ClaimTypes.Name, "jan123"),

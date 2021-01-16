@@ -2,6 +2,7 @@
 using Cwiczenie5.DTOs.Requests;
 using Cwiczenie5.DTOs.Responses;
 using Cwiczenie5.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,10 +23,7 @@ namespace Cwiczenie5.Services
            
             if(request.Haslo == null || request.NumerIndexu == null)
             {
-                
-               
                 return false;
-                
             }
 
 
@@ -35,8 +33,8 @@ namespace Cwiczenie5.Services
                 using (SqlCommand com = new SqlCommand())
                 {
                     com.Connection = con;
-
-                    com.CommandText = " SELECT IndexNumber from Student where IndexNumber =@index ";
+                    com.CommandText = "SELECT Password, RefreshToken, Salt from Logins where IndexNumber =@index";
+                   
                     com.Parameters.AddWithValue("index", request.NumerIndexu);
 
                     con.Open();
@@ -46,50 +44,37 @@ namespace Cwiczenie5.Services
                     {
                         return false;
                     }
+                    string password = dr["Password"].ToString();
+                    string refreshToken = dr["RefreshToken"].ToString();
+                    string salt= dr["Salt"].ToString();
+               
 
                     dr.Close();
 
 
-                }
+                    var valueBytes = KeyDerivation.Pbkdf2(
+                    password: request.Haslo,
+                    salt: Encoding.UTF8.GetBytes(salt),
+                    prf: KeyDerivationPrf.HMACSHA512,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8);
+                    ;
+                    string hash= Convert.ToBase64String(valueBytes);
 
-
-
-
-
-
-
-
-
-                using (SqlConnection con = new SqlConnection(ConString))
-                using (SqlCommand com = new SqlCommand())
-                {
-                    com.Connection = con;
-
-                    com.CommandText = " SELECT count(*)  FROM Logins WHERE Password = HASHBYTES('SHA2_512', @haslo) and IndexNumber =@index";
-                    com.Parameters.AddWithValue("index", request.NumerIndexu);
-                    com.Parameters.AddWithValue("haslo", request.Haslo);
-
-                    con.Open();
-                    var ex = com.ExecuteScalar();
-
-
-                    string str_myobject = ex.ToString();
-                    int int_myobject = int.Parse(str_myobject);
-
-                    if (int_myobject != 0)
+                    if (hash.Equals(password))
                     {
                         return true;
                     }
-
-
-
-
-
-
-                    return false; //
-
-
+                    return false;
                 }
+
+
+
+
+
+
+
+
             }
             catch (Exception)
             {
