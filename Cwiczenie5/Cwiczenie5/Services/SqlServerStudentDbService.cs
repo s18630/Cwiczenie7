@@ -56,12 +56,13 @@ namespace Cwiczenie5.Services
                     using (SqlCommand com = new SqlCommand())
                     {
                         com.Connection = con;
-                     con.Open();
+                  
 
-             //       com.CommandText = "SELECT * FROM Logins WHERE Password = HASHBYTES('SHA2_512', '" + request.Haslo + " ') ";
-                       com.CommandText = "SELECT * FROM Logins WHERE Password = HASHBYTES('SHA2_512',@haslo) and IndexNumber=@index";
+            
+                       com.CommandText = "SELECT Password FROM Logins WHERE Password = HASHBYTES('SHA2_512',@haslo) and IndexNumber=@index";
+                    con.Open();
 
-                   com.Parameters.AddWithValue("haslo", request.Haslo);
+                    com.Parameters.AddWithValue("haslo", request.Haslo);
                    com.Parameters.AddWithValue("index", request.NumerIndexu);
                    
 
@@ -70,7 +71,7 @@ namespace Cwiczenie5.Services
 
                         if (!dr.Read())
                         {
-                     throw new Exception("problrm w e");
+                        return false;
                     }
 
 
