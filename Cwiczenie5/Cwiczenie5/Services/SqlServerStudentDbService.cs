@@ -390,7 +390,45 @@ namespace Cwiczenie5.Services
 
         }
 
-        
+        public bool isTokenValid(string refreshToken)
+        {
+            string token = refreshToken;
+
+            if (refreshToken == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(ConString))
+                using (SqlCommand com = new SqlCommand())
+                {
+                    com.Connection = con;
+                    com.CommandText = "SELECT IndexNumber from Logins where RefreshToken=@RefreshToken";
+
+                    com.Parameters.AddWithValue("RefreshToken", token);
+
+                    con.Open();
+                    SqlDataReader dr = com.ExecuteReader();
+
+                    if (!dr.Read())
+                    {
+                        return false;
+                    }
+                    dr.Close();
+
+                    return true;
+                }
+           
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+
+
+        }
     }
 }
 

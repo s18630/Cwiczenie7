@@ -16,10 +16,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Cwiczenie5.Controllers
 {
-    
+
     [Route("api/students")]
     [ApiController]
-    
+
 
     public class StudentsController : ControllerBase
     {
@@ -31,7 +31,7 @@ namespace Cwiczenie5.Controllers
             Configuration = configuration;
         }
 
-        
+
 
         [HttpGet]
         //  [Authorize(Roles ="admin")]
@@ -48,7 +48,7 @@ namespace Cwiczenie5.Controllers
                 return Ok(students);
             }
 
-            catch (Exception )
+            catch (Exception)
             {
 
                 return BadRequest();
@@ -66,16 +66,16 @@ namespace Cwiczenie5.Controllers
             try
             {
                 bool log = _service.isLogOk(request);
-                if(log== false)
+                if (log == false)
                 {
-                    return BadRequest(); //brak uprawnień 
+                    return BadRequest(); //brak uprawnień inny błąd zwrócić 
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest();
             }
-            ///utwórz zgodne z urzytkownikiem infromacje
+            ///utwórz zgodne z urzytkownikiem infromacje spprawdz dla danego id 
             var claims = new[] {
             new Claim(ClaimTypes.NameIdentifier, "1"),
             new Claim(ClaimTypes.Name, "jan123"),
@@ -100,7 +100,24 @@ namespace Cwiczenie5.Controllers
             });
         }
 
+        [HttpPost("refresh-token/{token}")]
+        public IActionResult RefreshToken(string token)
+        {
 
+            try
+            {
+                bool log = _service.isTokenValid(token);
+                if (log == false)
+                {
+                    return BadRequest(); //brak uprawnień inny błąd zwrócić 
+                }
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+            return Ok("valis");
 
+        }
     }
 }
