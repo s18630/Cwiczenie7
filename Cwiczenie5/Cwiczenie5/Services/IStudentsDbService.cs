@@ -19,7 +19,7 @@ namespace Cwiczenie5.Services
 
         bool isLogOk(LoginRequestDto request);
 
-        bool isTokenValid(string refreshToken);
+        string validateToken(string refreshToken);
 
 
     }

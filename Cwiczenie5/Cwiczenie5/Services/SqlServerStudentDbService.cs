@@ -390,13 +390,13 @@ namespace Cwiczenie5.Services
 
         }
 
-        public bool isTokenValid(string refreshToken)
+        public string validateToken(string refreshToken)
         {
             string token = refreshToken;
 
             if (refreshToken == null)
             {
-                return false;
+                return null;
             }
 
             try
@@ -414,11 +414,12 @@ namespace Cwiczenie5.Services
 
                     if (!dr.Read())
                     {
-                        return false;
+                        return null;
                     }
+                    string IndexNumber = dr["IndexNumber"].ToString();
                     dr.Close();
 
-                    return true;
+                    return IndexNumber;
                 }
            
             }

@@ -76,41 +76,94 @@ namespace Cwiczenie5.Controllers
                 return BadRequest();
             }
             ///utwórz zgodne z urzytkownikiem infromacje spprawdz dla danego id 
-            var claims = new[] {
-            new Claim(ClaimTypes.NameIdentifier, "1"),
-            new Claim(ClaimTypes.Name, "jan123"),
+            ///
+
+            try
+            {
+                Student student = _service.GetStudent(request.NumerIndexu);
+                if (student == null)
+                {
+                    return BadRequest();
+                }
+
+
+                var claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier, student.IndexNumber),
+            new Claim(ClaimTypes.Name, student.FirstName),
             new Claim(ClaimTypes.Role, "admin"),
             new Claim(ClaimTypes.Role, "student"),
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-                issuer: "Gakko",
-                audience: "Students",
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(10),
-                signingCredentials: creds
-                );
-            return Ok(new
+                var token = new JwtSecurityToken(
+                    issuer: "Gakko",
+                    audience: "Students",
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(10),
+                    signingCredentials: creds
+                    );
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    refreshToken = Guid.NewGuid()
+                });
+            }
+            catch (Exception)
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                refreshToken = Guid.NewGuid()
-            });
+                return BadRequest();
+            }
+
+
         }
 
         [HttpPost("refresh-token/{token}")]
         public IActionResult RefreshToken(string token)
         {
-
+            
             try
             {
-                bool log = _service.isTokenValid(token);
-                if (log == false)
+                string index= _service.validateToken(token);
+                if (index == null)
                 {
                     return BadRequest(); //brak uprawnień inny błąd zwrócić 
                 }
+
+                Student student = _service.GetStudent(index);
+                if (student == null)
+                {
+                    return BadRequest();
+                }
+
+
+                var claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier, student.IndexNumber),
+            new Claim(ClaimTypes.Name, student.FirstName),
+            new Claim(ClaimTypes.Role, "admin"),
+            new Claim(ClaimTypes.Role, "student"),
+            };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var  refreshToken = new JwtSecurityToken(
+                    issuer: "Gakko",
+                    audience: "Students",
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(10),
+                    signingCredentials: creds
+                    );
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(refreshToken),
+                    refreshToken = Guid.NewGuid()
+                });
+
+
+
+
+
             }
             catch (Exception)
             {
